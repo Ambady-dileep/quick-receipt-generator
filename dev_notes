@@ -9,3 +9,6 @@ App urls.py finds `path('api/test/', views.test_view)`
 Django runs the `test_view()` in views.py  
    ⬇  
 Response goes back to Postman
+
+
+superuser name is : Admin and password is : password
