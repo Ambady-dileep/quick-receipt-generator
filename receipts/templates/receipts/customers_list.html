@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Customer List{% endblock %}
+
+{% block header_title %}Customer Directory{% endblock %}
+
+{% block header_subtitle %}Managing your customer relationships with elegance{% endblock %}
+
+{% block max_width %}1400px{% endblock %}
+
+{% block custom_styles %}
+.customer-id {
+    font-weight: 600;
+    color: #4c51bf;
+    font-size: 0.9rem;
+}
+
+.customer-name {
+    font-weight: 500;
+    color: #2d3748;
+    font-size: 1rem;
+}
+
+.customer-email {
+    color: #4a5568;
+    font-size: 0.9rem;
+}
+
+.customer-phone {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    text-decoration: none;
+    color: white;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-details {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.btn-details:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+}
+
+.btn-receipts {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.btn-receipts:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+/* Icons using Unicode symbols */
+.icon-eye::before {
+    content: "👁";
+}
+
+.icon-receipt::before {
+    content: "🧾";
+}
+
+.icon-delete::before {
+    content: "🗑";
+}
+
+/* Tooltip */
+.btn-action {
+    position: relative;
+}
+
+.btn-action::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+.btn-action:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .btn-action {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+}
+{% endblock %}
+
+{% block content %}
+    <!-- Add Customer Button -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h2 style="margin: 0; color: #2d3748; font-size: 1.5rem;">Customer Management</h2>
+            <p style="margin: 0.5rem 0 0 0; color: #718096; font-size: 0.9rem;">Manage your customer database efficiently</p>
+        </div>
+        <a href="/customers/add" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.1rem;">➕</span>
+            Add New Customer
+        </a>
+    </div>
+
+    {% if customers %}
+        <div class="stats">
+            <div class="stats-item">
+                <div class="stats-number">{{ customers|length }}</div>
+                <div class="stats-label">Total Customers</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-number">100%</div>
+                <div class="stats-label">Data Quality</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-number">Active</div>
+                <div class="stats-label">System Status</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>Full Name</th>
+                        <th>Email Address</th>
+                        <th>Phone Number</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                        <td>
+                            <span class="customer-id">#{{ customer.id }}</span>
+                        </td>
+                        <td>
+                            <span class="customer-name">{{ customer.name }}</span>
+                        </td>
+                        <td>
+                            <span class="customer-email">{{ customer.email }}</span>
+                        </td>
+                        <td>
+                            <span class="customer-phone">{{ customer.phone }}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="/customers/{{ customer.id }}/details" 
+                                   class="btn-action btn-details" 
+                                   data-tooltip="View Details">
+                                    <span class="icon-eye"></span>
+                                </a>
+                                <a href="/customers/{{ customer.id }}/receipts" 
+                                   class="btn-action btn-receipts" 
+                                   data-tooltip="View Receipts">
+                                    <span class="icon-receipt"></span>
+                                </a>
+                                <button onclick="deleteCustomer({{ customer.id }})" 
+                                        class="btn-action btn-delete" 
+                                        data-tooltip="Delete Customer">
+                                    <span class="icon-delete"></span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <h3>No Customers Found</h3>
+            <p>Your customer directory is currently empty. Add some customers to get started!</p>
+            <div style="margin-top: 2rem;">
+                <a href="/customers/add" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.1rem;">➕</span>
+                    Add Your First Customer
+                </a>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+
+// Function to get CSRF token (for Django)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+{% endblock %}

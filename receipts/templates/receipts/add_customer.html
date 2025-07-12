@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Add Customer{% endblock %}
+
+{% block header_title %}Add New Customer{% endblock %}
+{% block header_subtitle %}Expand your customer directory with new entries{% endblock %}
+
+{% block header_gradient %}linear-gradient(135deg, #667eea 0%, #764ba2 100%){% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Customer Information</div>
+            <div class="card-subtitle">Fill in the details to add a new customer</div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label" for="name">Full Name *</label>
+                <input type="text" id="name" name="name" class="form-control" required placeholder="Enter customer's full name">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="customer@example.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="phone">Phone Number</label>
+                <input type="text" id="phone" name="phone" class="form-control" placeholder="+1 (555) 123-4567">
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary">
+                    <span style="margin-right: 0.5rem;">✓</span>
+                    Add Customer
+                </button>
+                <a href="{% url 'customer_list' %}" class="btn btn-secondary">
+                    <span style="margin-right: 0.5rem;">←</span>
+                    Back to Customer List
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block custom_scripts %}
+// Add form validation and enhancement
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const phoneInput = document.getElementById('phone');
+
+    // Add real-time validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+
+        // Clear previous error states
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.style.borderColor = '#e2e8f0';
+        });
+
+        // Validate name
+        if (!nameInput.value.trim()) {
+            nameInput.style.borderColor = '#e53e3e';
+            isValid = false;
+        }
+
+        // Validate email format if provided
+        if (emailInput.value && !isValidEmail(emailInput.value)) {
+            emailInput.style.borderColor = '#e53e3e';
+            isValid = false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            showAlert('Please check the highlighted fields', 'error');
+        }
+    });
+
+    // Email validation function
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    // Show alert function
+    function showAlert(message, type) {
+        // Remove existing alerts
+        const existingAlert = document.querySelector('.alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        
+        const form = document.querySelector('form');
+        form.parentNode.insertBefore(alert, form);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            alert.remove();
+        }, 5000);
+    }
+
+    // Add smooth focus effects
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.style.borderColor = '#4facfe';
+            this.style.boxShadow = '0 0 0 3px rgba(79, 172, 254, 0.1)';
+        });
+
+        input.addEventListener('blur', function() {
+            this.style.borderColor = '#e2e8f0';
+            this.style.boxShadow = 'none';
+        });
+    });
+});
+{% endblock %}

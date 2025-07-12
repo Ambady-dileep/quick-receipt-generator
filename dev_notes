@@ -10,5 +10,12 @@ Django runs the `test_view()` in views.py
    ⬇  
 Response goes back to Postman
 
-
 superuser name is : Admin and password is : password
+
+✅ How to Think Like a Developer 
+🔥 Always ask:
+1. What kind of request is coming in? (GET? POST?)
+2. What data is in the request? (form? JSON?)
+3. What should I do with it? (save? fetch? delete?)
+4. What response should I return?
+If you ask these 4 questions every single time, you’ll become fluent in writing view logic.
