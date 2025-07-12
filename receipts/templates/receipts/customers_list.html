@@ -232,8 +232,37 @@
         </div>
     {% endif %}
 {% endblock %}
+{% block custom_scripts %}
+function deleteCustomer(customerId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This action will permanently delete the customer.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const csrfToken = getCookie('csrftoken');
 
-{% block scripts %}
+            fetch(`/customers/${customerId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    Swal.fire('Deleted!', 'Customer has been deleted.', 'success')
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire('Error!', 'Could not delete customer.', 'error');
+                }
+            });
+        }
+    });
+}
 
 // Function to get CSRF token (for Django)
 function getCookie(name) {
@@ -250,4 +279,5 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+</script>
 {% endblock %}

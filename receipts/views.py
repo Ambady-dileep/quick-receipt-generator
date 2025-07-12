@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -26,3 +26,10 @@ def add_customer(request):
         Customer.objects.create(name=name,email=email,phone=phone)
         return redirect('customers_list')
     return render(request,'receipts/add_customer.html')
+
+def delete_customer(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    if request.method == 'POST':
+        customer.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'error': 'Invalid request'}, status=405)
