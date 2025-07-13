@@ -24,7 +24,6 @@ class Receipt(models.Model):
     def __str__(self):
         return f"Receipt #{self.id} - {self.customer.name}"
 
-
 class Item(models.Model):
     UNIT_CHOICES = [
         ('kg', 'kg'),
@@ -35,16 +34,13 @@ class Item(models.Model):
         ('box', 'box'),
         ('meter', 'meter'),
         ('dozen', 'dozen'),
-        # add more as needed
     ]
-    receipt = models.ForeignKey(Receipt,on_delete=models.CASCADE,related_name='items')
+
+    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='items')
     name = models.CharField(max_length=100)
-    quantity = models.PositiveIntegerField()
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
     unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default='pcs')
-    price = models.DecimalField(max_digits=10,decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"{self.quantity}*{self.name} - ₹{self.price}"
-    
-
-
+        return f"{self.quantity}{self.unit} * {self.name} - ₹{self.price}"
