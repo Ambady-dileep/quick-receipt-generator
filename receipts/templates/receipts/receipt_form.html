@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h2 style="margin: 0; color: #2d3748; font-size: 1.5rem;">{{ title }}</h2>
+        <p style="margin: 0.5rem 0 0 0; color: #718096; font-size: 0.9rem;">
+            {% if is_edit %}Update existing receipt{% else %}Create a new receipt with line items{% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="card">
+    <form method="POST" id="receiptForm">
+        {% csrf_token %}
+        <input type="hidden" name="customer_id" value="{{ customer.id }}">
+
+        {{ formset.management_form }} 
+
+        <h3 style="font-size: 1.2rem; margin-bottom: 1rem;">Items</h3>
+        <div id="formset-container">
+            {% for form in formset %}
+                <div class="form-group item-form" style="display: flex; gap: 1rem; align-items: flex-start;">
+                    <div style="flex: 2;">
+                        {{ form.name.label_tag }} {{ form.name }}
+                    </div>
+                    <div style="flex: 1;">
+                        {{ form.quantity.label_tag }} {{ form.quantity }}
+                    </div>
+                    <div style="flex: 1;">
+                        {{ form.price.label_tag }} {{ form.price }}
+                    </div>
+                    <div style="flex: 1; margin-top: 2rem;">
+                        <span class="item-total">Subtotal: ₹0.00</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div style="margin: 1rem 0;">
+            <button type="button" id="addMore" class="btn btn-secondary">➕ Add More Items</button>
+        </div>
+
+        <div style="margin-top: 2rem; font-weight: bold;">
+            Total: ₹<span id="grandTotal">0.00</span>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">
+                {% if is_edit %}Update{% else %}Create{% endif %} Receipt
+            </button>
+            <a href="{% url 'customer_receipts' customer.id %}" class="btn btn-secondary" style="margin-left: 1rem;">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function calculateSubtotals() {
+        let grandTotal = 0.0;
+        document.querySelectorAll('.item-form').forEach(form => {
+            const qty = parseFloat(form.querySelector('[name$="-quantity"]').value) || 0;
+            const price = parseFloat(form.querySelector('[name$="-price"]').value) || 0;
+            const subtotal = qty * price;
+            form.querySelector('.item-total').innerText = `Subtotal: ₹${subtotal.toFixed(2)}`;
+            grandTotal += subtotal;
+        });
+        document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
+    }
+
+    document.getElementById('formset-container').addEventListener('input', calculateSubtotals);
+
+    document.getElementById('addMore').addEventListener('click', () => {
+        const totalForms = document.querySelector('#id_item_set-TOTAL_FORMS');
+        if (!totalForms) {
+            alert("Formset management input not found!");
+            return;
+        }
+
+        const container = document.getElementById('formset-container');
+        const newIndex = parseInt(totalForms.value);
+
+        const lastForm = container.querySelector('.item-form:last-child');
+        const newForm = lastForm.cloneNode(true);
+
+        newForm.querySelectorAll('input').forEach(input => {
+            input.name = input.name.replace(/item_set-(\d+)-/, `item_set-${newIndex}-`);
+            input.id = input.id.replace(/item_set-(\d+)-/, `item_set-${newIndex}-`);
+            input.value = '';
+        });
+
+        newForm.querySelector('.item-total').innerText = 'Subtotal: ₹0.00';
+        container.appendChild(newForm);
+        totalForms.value = newIndex + 1;
+
+        calculateSubtotals();
+    });
+
+    document.getElementById('receiptForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const total = document.getElementById('grandTotal').innerText;
+        Swal.fire({
+            title: 'Confirm Receipt Submission',
+            text: `Total: ₹${total}`,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Submit',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                e.target.submit();
+            }
+        });
+    });
+
+    window.onload = calculateSubtotals;
+</script>
+{% endblock %}

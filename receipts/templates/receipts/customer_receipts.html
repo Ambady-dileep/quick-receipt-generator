@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Receipts for {{ customer.name }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h2 style="margin: 0;">Receipts for {{ customer.name }}</h2>
+    <a href="/receipts/form/?customer_id={{ customer.id }}" class="btn btn-primary">
+        ➕ Add New Receipt for {{ customer.name }}
+    </a>
+</div>
+
+{% if receipts %}
+    <table>
+        <thead>
+            <tr>
+                <th>Receipt ID</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for receipt in receipts %}
+            <tr>
+                <td>#{{ receipt.id }}</td>
+                <td>{{ receipt.date_created|date:"M d, Y H:i" }}</td>
+                <td>₹{{ receipt.total }}</td>
+                <td>
+                    <a href="{% url 'receipt_detail' receipt.id %}" class="btn btn-secondary">View</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2"><strong>Total Across All Receipts</strong></td>
+                <td><strong>₹{{ grand_total }}</strong></td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+{% else %}
+    <div class="empty-state">
+        <p>No receipts found for {{ customer.name }}.</p>
+    </div>
+{% endif %}
+{% endblock %}
